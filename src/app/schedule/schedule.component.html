@@ -1,0 +1,11 @@
+<div>
+  <div>
+    <!-- timescale -->
+  </div>
+  <div>
+    <!-- datescale -->
+  </div>
+  <div>
+    <div *ngFor="let event of events" class="scheduleEvent {{getEventClass(event)}}">{{event.description}}</div>    
+  </div>
+</div>

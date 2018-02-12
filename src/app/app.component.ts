@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ScheduleComponent } from "./schedule/schedule.component";
 
 @Component({
   selector: 'app-root',
