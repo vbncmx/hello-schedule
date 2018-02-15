@@ -18,6 +18,7 @@ export class ScheduleGridComponent implements OnInit {
   @Input() events: Event[];
   viewContainerRef: ViewContainerRef;
   factoryResolver: ComponentFactoryResolver;
+  elementRef: ElementRef;
 
   ngOnInit() {
     this.year = 2018;
@@ -29,6 +30,7 @@ export class ScheduleGridComponent implements OnInit {
 
     this.viewContainerRef = viewContainerRef;
     this.factoryResolver = factoryResolver;
+    this.elementRef = el;
 
     const that = this;
 
@@ -83,8 +85,18 @@ export class ScheduleGridComponent implements OnInit {
   }
 
   public addEvent(event: Event) {
-    const factory = this.factoryResolver.resolveComponentFactory(EventComponent)
-    let eventInstance  = this.viewContainerRef.createComponent(factory, 0).instance;
-    eventInstance.event = event;
+    
+
+    const factory = this.factoryResolver.resolveComponentFactory(EventComponent);
+    const eventComponent = factory.create(this.viewContainerRef.parentInjector);
+    eventComponent.instance.event = event;
+    this.viewContainerRef.insert(eventComponent.hostView);
+
+    // const eventComponent = this.viewContainerRef.createComponent(factory, 0);
+    console.log(this.viewContainerRef);    
+    
+    // this.viewContainerRef.insert(eventComponen)
+
+
   }
 }

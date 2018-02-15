@@ -48,13 +48,6 @@ export class ScheduleComponent implements OnInit, AfterViewInit {
 
       const dayScale = document.getElementById('dayScale');
       that.configureDayScale(dayScale);
-
-      // setTimeout(function(){
-      //   const event = { start: new Date("2018-02-01 16:00:00"), end: new Date("2018-02-01 18:00:00"), description: "HELLO", id: "e666" };
-      //   // that.addEvent(event);
-      //   console.log(this.scheduleGrid);
-      // }, 5000);
-
     });
   }
 
