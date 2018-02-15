@@ -1,8 +1,9 @@
-import { Component, OnInit, ElementRef } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ElementRef, ComponentFactoryResolver, Injectable, Inject, ReflectiveInjector, ViewContainerRef, ViewChild } from '@angular/core';
 import { Event } from '../event';
 import { EVENTS } from '../event-provider';
 import { EventComponent } from '../event/event.component';
 import { ScheduleOptions } from '../scheduleOptions';
+import { ScheduleGridComponent } from '../schedule-grid/schedule-grid.component'
 import * as $ from 'jquery';
 
 @Component({
@@ -11,11 +12,18 @@ import * as $ from 'jquery';
   styleUrls: ['./schedule.component.css']
 })
 
-export class ScheduleComponent implements OnInit {
+export class ScheduleComponent implements OnInit, AfterViewInit {
+
+  ngAfterViewInit(): void {
+    console.log(this.scheduleGrid);
+  }
 
   year: 2018;
   month: 1;
   events: Event[];
+  viewContainerRef: ViewContainerRef;
+  factoryResolver: ComponentFactoryResolver;
+  @ViewChild(ScheduleGridComponent) scheduleGrid: ScheduleGridComponent;
 
   ngOnInit() {
     this.year = 2018;
@@ -23,12 +31,14 @@ export class ScheduleComponent implements OnInit {
     this.events = EVENTS.filter(e => e.start.getFullYear() === this.year && e.start.getMonth() === this.month);
   }
 
-  constructor(el: ElementRef) {
-    const that = this;
-    $(function () {
+  constructor(el: ElementRef, @Inject(ViewContainerRef) viewContainerRef, @Inject(ComponentFactoryResolver) factoryResolver) {
 
-      const scheduleGrid = document.getElementById('scheduleGrid');
-      that.adjustScheduleGridStyle(scheduleGrid.style);
+    this.viewContainerRef = viewContainerRef;
+    this.factoryResolver = factoryResolver;
+
+    const that = this;
+
+    $(function () {
 
       const stepScale = document.getElementById('stepScale');
       that.adjustStepScaleStyle(stepScale.style);
@@ -38,6 +48,12 @@ export class ScheduleComponent implements OnInit {
 
       const dayScale = document.getElementById('dayScale');
       that.configureDayScale(dayScale);
+
+      // setTimeout(function(){
+      //   const event = { start: new Date("2018-02-01 16:00:00"), end: new Date("2018-02-01 18:00:00"), description: "HELLO", id: "e666" };
+      //   // that.addEvent(event);
+      //   console.log(this.scheduleGrid);
+      // }, 5000);
 
     });
   }
@@ -51,15 +67,17 @@ export class ScheduleComponent implements OnInit {
 
     const gradientHeight1 = this.toPx(so.dayHeightPx - so.gridLineThicknessPx);
     const gradientHeight2 = this.toPx(so.dayHeightPx);
-    const heightGradient = 'repeating-linear-gradient(0deg, transparent, transparent {gradientHeight1}, #CCC {gradientHeight1}, #CCC {gradientHeight2})'
+    const heightGradient = 'repeating-linear-gradient(0deg, transparent, transparent {gradientHeight1}, {line-color} {gradientHeight1}, {line-color} {gradientHeight2})'
       .replace(/{gradientHeight1}/g, gradientHeight1)
-      .replace(/{gradientHeight2}/g, gradientHeight2);
+      .replace(/{gradientHeight2}/g, gradientHeight2)
+      .replace(/{line-color}/g, so.gridLineColor);
 
     const gradientWidth1 = this.toPx(so.hourWidthPx - so.gridLineThicknessPx);
     const gradientWidth2 = this.toPx(so.hourWidthPx);
-    const widthGradient = 'repeating-linear-gradient(90deg, transparent, transparent {gradientWidth1}, #CCC {gradientWidth1}, #CCC {gradientWidth2})'
+    const widthGradient = 'repeating-linear-gradient(90deg, transparent, transparent {gradientWidth1}, {line-color} {gradientWidth1}, {line-color} {gradientWidth2})'
       .replace(/{gradientWidth1}/g, gradientWidth1)
-      .replace(/{gradientWidth2}/g, gradientWidth2);
+      .replace(/{gradientWidth2}/g, gradientWidth2)
+      .replace(/{line-color}/g, so.gridLineColor);
 
     const backgroundImage = heightGradient + ', ' + widthGradient;
 
@@ -137,20 +155,26 @@ export class ScheduleComponent implements OnInit {
     const wrapper = $('#dayMarkWrapper');
 
     for (let day = 0; day < 31; day++) {
-      const top = day * so.dayHeightPx;
-      const dayMarkStyle = 'position: absolute; top: {top}; font-size: 0.75em; float: none; width: {width}; text-align: right;'
-        .replace('{top}', this.toPx(top + 5))
+      const top = day * so.dayHeightPx + (so.dayHeightPx - so.dayScaleFontSizePx) / 2;
+
+      const dayMarkStyle = 'position: absolute; top: {top}; font-size: {font-size}; float: none; width: {width}; text-align: right;'
+        .replace('{top}', this.toPx(top))
         .replace('{height}', this.toPx(so.dayHeightPx))
-        .replace('{width}', this.toPx(so.dayScaleWidthPx - 10));
+        .replace('{width}', this.toPx(so.dayScaleWidthPx - 10))
+        .replace('{font-size}', this.toPx(so.dayScaleFontSizePx));
 
       const markHtml = '<div style="{style}">{text}</div>'
         .replace('{style}', dayMarkStyle)
         .replace('{text}', (day + 1).toString());
-        wrapper.append(markHtml);
+      wrapper.append(markHtml);
     }
   }
 
   private toPx(x: number): string {
     return x.toString() + 'px';
+  }
+
+  public addEvent(event: Event) {
+    this.scheduleGrid.addEvent(event);
   }
 }

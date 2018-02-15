@@ -6,11 +6,12 @@
   "apps": [
     {
       "root": "src",
-      "outDir": "C:\\Users\\vbncmx\\Documents\\Repo\\hello-schedule-dist",
+      "outDir": "..\\hello-schedule-page",
       "assets": [
         "assets",
         "favicon.ico"
       ],
+      "baseHref": "https://vbncmx.github.io/hello-schedule-page/",
       "index": "index.html",
       "main": "main.ts",
       "polyfills": "polyfills.ts",

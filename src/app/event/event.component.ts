@@ -21,8 +21,7 @@ export class EventComponent implements OnInit {
 
       const so = ScheduleOptions.Current();
 
-      $(el.nativeElement).draggable(
-        {
+      $(el.nativeElement).draggable({
           grid: [so.stepPx, so.dayHeightPx],
           containment: '#scheduleGrid',
           stop: function(){

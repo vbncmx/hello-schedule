@@ -13,13 +13,15 @@ export class ScheduleOptions {
   stepScaleHeightPx: number;
   dayScaleWidthPx: number;
   timeMarksPanelHeightPx: number;
+  gridLineColor: string;
+  dayScaleFontSizePx: number;
 
   public static Current(): ScheduleOptions {
     const stepMinutes = 15;
     const stepPx = 20;
     return this._current || (this._current = {
-      dayHeightPx: 30,
-      eventHeightPx: 28,
+      dayHeightPx: 20,
+      eventHeightPx: 18,
       stepMinutes: stepMinutes,
       stepPx: stepPx,
       scheduleStartMinutes: 360,
@@ -28,7 +30,9 @@ export class ScheduleOptions {
       stepScaleHeightPx: 10,
       scheduleEndMinutes: 22 * 60,
       dayScaleWidthPx: 30,
-      timeMarksPanelHeightPx: 20
+      timeMarksPanelHeightPx: 20,
+      gridLineColor: '#CCC',
+      dayScaleFontSizePx: 12
     });
   }
 }
