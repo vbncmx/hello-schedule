@@ -26,16 +26,28 @@ export class ScheduleComponent implements OnInit {
   constructor(el: ElementRef) {
     const that = this;
     $(function () {
+
       const scheduleGrid = document.getElementById('scheduleGrid');
-      that.adjustStyle(scheduleGrid.style);
+      that.adjustScheduleGridStyle(scheduleGrid.style);
+
+      const stepScale = document.getElementById('stepScale');
+      that.adjustStepScaleStyle(stepScale.style);
+
+      const timeMarks = document.getElementById('timeMarks');
+      that.configureTimeMarksElement(timeMarks);
+
+      const dayScale = document.getElementById('dayScale');
+      that.configureDayScale(dayScale);
+
     });
   }
 
-  private adjustStyle(style) {
+  private adjustScheduleGridStyle(style) {
+
     const so = ScheduleOptions.Current();
-    const minutesFromScheduleStart = 24 * 60 - so.scheduleStartMinutes;
+    const scheduleMinutes = so.scheduleEndMinutes - so.scheduleStartMinutes;
     const height = this.toPx(so.dayHeightPx * 31);
-    const width = this.toPx(so.stepPx * minutesFromScheduleStart / so.stepMinutes);
+    const width = this.toPx(so.stepPx * scheduleMinutes / so.stepMinutes);
 
     const gradientHeight1 = this.toPx(so.dayHeightPx - so.gridLineThicknessPx);
     const gradientHeight2 = this.toPx(so.dayHeightPx);
@@ -50,7 +62,6 @@ export class ScheduleComponent implements OnInit {
       .replace(/{gradientWidth2}/g, gradientWidth2);
 
     const backgroundImage = heightGradient + ', ' + widthGradient;
-    console.log(backgroundImage);
 
     const backgroundSize = this.toPx(so.hourWidthPx) + ' ' + this.toPx(so.dayHeightPx);
 
@@ -59,8 +70,84 @@ export class ScheduleComponent implements OnInit {
     style.width = width;
     style.backgroundImage = backgroundImage;
     style.backgroundSize = backgroundSize;
+    style.marginLeft = this.toPx(so.dayScaleWidthPx);
+  }
 
-    // return "position: relative; height: ${height}; width: ${width}; background-image: ${backgroundImage}; background-size: ${backgroundSize};";
+  private adjustStepScaleStyle(style) {
+    const so = ScheduleOptions.Current();
+    const scheduleMinutes = so.scheduleEndMinutes - so.scheduleStartMinutes;
+    style.width = this.toPx(so.stepPx * scheduleMinutes / so.stepMinutes);
+    style.height = this.toPx(so.stepScaleHeightPx);
+    style.marginLeft = this.toPx(so.dayScaleWidthPx);
+    this.setScaleBackground(style, so.stepPx, so.gridLineThicknessPx);
+  }
+
+  private configureTimeMarksElement(el) {
+    const so = ScheduleOptions.Current();
+    const scheduleMinutes = so.scheduleEndMinutes - so.scheduleStartMinutes;
+    el.style.width = this.toPx(so.stepPx * scheduleMinutes / so.stepMinutes);
+    el.style.height = this.toPx(so.timeMarksPanelHeightPx);
+    el.style.position = 'relative';
+    el.style.marginLeft = this.toPx(so.dayScaleWidthPx);
+    for (let totalMinutes = so.scheduleStartMinutes; totalMinutes <= so.scheduleEndMinutes; totalMinutes += 60) {
+      const hours = totalMinutes / 60;
+      const minutes = totalMinutes % 60;
+      const markWidth = 40;
+      const markLeft = so.stepPx * (totalMinutes - so.scheduleStartMinutes) / so.stepMinutes - markWidth / 2;
+
+      const markStyle = 'position: absolute; left: {left}; bottom: 2px; width: {width}; text-align: center; font-size: 0.75em;'
+        .replace('{left}', this.toPx(markLeft))
+        .replace('{width}', this.toPx(markWidth));
+
+      let markText = hours >= 10 ? hours.toString() : '0' + hours.toString();
+      markText += ':';
+      markText += minutes >= 10 ? minutes.toString() : '0' + minutes.toString();
+
+      const markHtml = '<div style="{style}">{text}</div>'
+        .replace('{style}', markStyle)
+        .replace('{text}', markText);
+
+      $(el).append(markHtml);
+    }
+  }
+
+  private setScaleBackground(style, tickPeriod, tickThickness) {
+    const gradientWidth1 = this.toPx(tickPeriod - tickThickness);
+    const gradientWidth2 = this.toPx(tickPeriod);
+    const widthGradient = 'repeating-linear-gradient(90deg, transparent, transparent {gradientWidth1}, #CCC {gradientWidth1}, #CCC {gradientWidth2})'
+      .replace(/{gradientWidth1}/g, gradientWidth1)
+      .replace(/{gradientWidth2}/g, gradientWidth2);
+    const backgroundSize = this.toPx(tickPeriod);
+    style.backgroundImage = widthGradient;
+    style.backgroundSize = backgroundSize;
+  }
+
+  private configureDayScale(el) {
+    const so = ScheduleOptions.Current();
+    el.style.width = this.toPx(so.dayScaleWidthPx);
+    el.style.height = this.toPx(so.dayHeightPx * 31);
+    el.style.float = 'left';
+    el.style.marginTop = this.toPx(so.timeMarksPanelHeightPx + so.stepScaleHeightPx);
+
+    const dayMarkWrapper = '<div id="dayMarkWrapper" style="width: {width}; height: {height}; position: relative;"></div>'
+      .replace('{width}', this.toPx(so.dayScaleWidthPx))
+      .replace('{height}', this.toPx(so.dayHeightPx * 31));
+
+    $(el).append(dayMarkWrapper);
+    const wrapper = $('#dayMarkWrapper');
+
+    for (let day = 0; day < 31; day++) {
+      const top = day * so.dayHeightPx;
+      const dayMarkStyle = 'position: absolute; top: {top}; font-size: 0.75em; float: none; width: {width}; text-align: right;'
+        .replace('{top}', this.toPx(top + 5))
+        .replace('{height}', this.toPx(so.dayHeightPx))
+        .replace('{width}', this.toPx(so.dayScaleWidthPx - 10));
+
+      const markHtml = '<div style="{style}">{text}</div>'
+        .replace('{style}', dayMarkStyle)
+        .replace('{text}', (day + 1).toString());
+        wrapper.append(markHtml);
+    }
   }
 
   private toPx(x: number): string {
