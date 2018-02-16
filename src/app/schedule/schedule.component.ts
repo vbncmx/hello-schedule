@@ -14,9 +14,7 @@ import * as $ from 'jquery';
 
 export class ScheduleComponent implements OnInit, AfterViewInit {
 
-  ngAfterViewInit(): void {
-    console.log(this.scheduleGrid);
-  }
+  ngAfterViewInit(): void { }
 
   year: 2018;
   month: 1;
@@ -48,6 +46,11 @@ export class ScheduleComponent implements OnInit, AfterViewInit {
 
       const dayScale = document.getElementById('dayScale');
       that.configureDayScale(dayScale);
+
+      $("#addAppointmentButton").click(function(){
+        const event = { start: new Date("2018-02-01 16:00:00"), end: new Date("2018-02-01 17:30:00"), description: "HELLO", id: "e6666" };
+        that.scheduleGrid.addEvent(event);
+      });
     });
   }
 

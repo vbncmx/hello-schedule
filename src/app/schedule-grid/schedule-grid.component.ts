@@ -1,4 +1,4 @@
-import {  Component, OnInit, ElementRef, ComponentFactoryResolver,  Injectable,  Inject,  ReflectiveInjector, ViewContainerRef, Input } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ElementRef, ComponentFactoryResolver, Injectable, Inject, ReflectiveInjector, ViewContainerRef, Input, ViewChild } from '@angular/core';
 import { Event } from '../event';
 import { EVENTS } from '../event-provider';
 import { EventComponent } from '../event/event.component';
@@ -11,12 +11,13 @@ import * as $ from 'jquery';
   styleUrls: ['./schedule-grid.component.css']
 })
 
-export class ScheduleGridComponent implements OnInit {
+export class ScheduleGridComponent implements OnInit, AfterViewInit {
+  ngAfterViewInit(): void { }
 
   year: 2018;
   month: 1;
   @Input() events: Event[];
-  viewContainerRef: ViewContainerRef;
+  @ViewChild('dynamic', { read: ViewContainerRef }) viewContainerRef: ViewContainerRef
   factoryResolver: ComponentFactoryResolver;
   elementRef: ElementRef;
 
@@ -26,22 +27,55 @@ export class ScheduleGridComponent implements OnInit {
     this.events = EVENTS.filter(e => e.start.getFullYear() === this.year && e.start.getMonth() === this.month);
   }
 
-  constructor(el: ElementRef, @Inject(ViewContainerRef) viewContainerRef, @Inject(ComponentFactoryResolver) factoryResolver) {
+  constructor(el: ElementRef, @Inject(ComponentFactoryResolver) factoryResolver) {
 
-    this.viewContainerRef = viewContainerRef;
     this.factoryResolver = factoryResolver;
     this.elementRef = el;
 
     const that = this;
 
     $(function () {
-
       that.adjustScheduleGridStyle(el.nativeElement.style);
 
-      setTimeout(function(){
-        const event = { start: new Date("2018-02-01 16:00:00"), end: new Date("2018-02-01 18:00:00"), description: "HELLO", id: "e666" };
-        that.addEvent(event);
-      }, 2000);
+      let selector = document.getElementById("timeSelector");
+      let initialPoint = { x: 0, y: 0 };
+
+      $(el.nativeElement).mousedown(function (e) {
+        if (e.target.id === 'scheduleGrid'){
+          $(selector).show();
+          const so = ScheduleOptions.Current();
+          selector.style.width = that.toPx(0);
+          selector.style.height = that.toPx(so.dayHeightPx);
+          selector.style.left = that.toPx(Math.floor(e.offsetX / so.stepPx) * so.stepPx);
+          selector.style.top = that.toPx(Math.floor(e.offsetY / so.dayHeightPx) * so.dayHeightPx);
+        }        
+      });
+
+      $(el.nativeElement).mousemove(function (e) {
+        if ($(selector).is(":visible")) {
+          const so = ScheduleOptions.Current();
+          const x = parseInt(selector.style.left.replace('px', ''));
+
+          let width = 0;
+          if (e.offsetX % so.stepPx === 0) {
+            width = e.offsetX - x;
+          }
+          else {
+            width = Math.floor(e.offsetX / so.stepPx + 1) * so.stepPx - x;
+          }
+          if (width < so.stepPx) {
+            width = so.stepPx;
+          }
+          
+          selector.style.width = that.toPx(width);
+        }
+      });
+
+      $(el.nativeElement).mouseup(function (e) {
+        if ($(selector).is(":visible")) {
+          $(selector).hide();
+        }
+      });
 
     });
   }
@@ -85,7 +119,6 @@ export class ScheduleGridComponent implements OnInit {
   }
 
   public addEvent(event: Event) {
-    
 
     const factory = this.factoryResolver.resolveComponentFactory(EventComponent);
     const eventComponent = factory.create(this.viewContainerRef.parentInjector);
@@ -93,8 +126,8 @@ export class ScheduleGridComponent implements OnInit {
     this.viewContainerRef.insert(eventComponent.hostView);
 
     // const eventComponent = this.viewContainerRef.createComponent(factory, 0);
-    console.log(this.viewContainerRef);    
-    
+    console.log(this.viewContainerRef);
+
     // this.viewContainerRef.insert(eventComponen)
 
 

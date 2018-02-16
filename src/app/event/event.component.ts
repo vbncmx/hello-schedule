@@ -23,7 +23,10 @@ export class EventComponent implements OnInit {
 
       $(el.nativeElement).draggable({
           grid: [so.stepPx, so.dayHeightPx],
-          containment: '#scheduleGrid',
+          containment: '#scheduleGrid',          
+          drag: function(e){
+            e.stopPropagation();
+          },
           stop: function(){
             that.adjustEvent(that, el.nativeElement.style);
           }
