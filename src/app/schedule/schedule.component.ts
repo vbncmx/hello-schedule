@@ -56,16 +56,18 @@ export class ScheduleComponent implements OnInit, AfterViewInit {
 
       that.appointmentModal.hide();
 
-      that.scheduleGrid.onSelectionEnd = (start, end) => {
+      that.scheduleGrid.onSelectionEnd = (start, end, e) => {
         let event = new Event();
         event.start = start;
         event.end = end;
         event.description = start.toDateString();
         event.id = that.guid();
+
+        that.appointmentModal.setLocation(e.pageX, e.pageY);
         that.appointmentModal.setEvent(event);
         that.appointmentModal.show();
       };
-      
+
       that.appointmentModal.onOkClick = () => {
         that.scheduleGrid.addEvent(that.appointmentModal.event);
         that.appointmentModal.hide();

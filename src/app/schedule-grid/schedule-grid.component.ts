@@ -20,7 +20,7 @@ export class ScheduleGridComponent implements OnInit, AfterViewInit {
   @ViewChild('dynamic', { read: ViewContainerRef }) viewContainerRef: ViewContainerRef
   factoryResolver: ComponentFactoryResolver;
   elementRef: ElementRef;
-  onSelectionEnd: (start: Date, end: Date) => void;
+  onSelectionEnd: (start: Date, end: Date, e) => void;
 
   ngOnInit() {
     this.year = 2018;
@@ -85,7 +85,7 @@ export class ScheduleGridComponent implements OnInit, AfterViewInit {
           const end = that.toDate(totalMinutesEnd, day);
 
           if (that.onSelectionEnd !== null){
-            that.onSelectionEnd(start, end);
+            that.onSelectionEnd(start, end, e);
           }          
         }
       });

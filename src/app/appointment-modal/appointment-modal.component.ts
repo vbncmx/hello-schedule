@@ -22,7 +22,7 @@ export class AppointmentModalComponent implements OnInit {
   }
 
   ngOnInit() { 
-    this.elementRef.nativeElement.style.position = 'absolute';
+    this.elementRef.nativeElement.style.position = 'fixed';
     this.elementRef.nativeElement.style.zIndex = '1000';
   }
 
