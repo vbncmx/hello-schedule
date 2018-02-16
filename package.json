@@ -23,6 +23,7 @@
     "@angular/router": "^4.0.0",
     "@types/jquery": "^3.3.0",
     "@types/jqueryui": "^1.12.2",
+    "angular-modal-service": "^0.13.0",
     "core-js": "^2.4.1",
     "gulp": "^3.9.1",
     "gulp-sass": "^3.1.0",

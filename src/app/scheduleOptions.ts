@@ -20,8 +20,8 @@ export class ScheduleOptions {
     const stepMinutes = 15;
     const stepPx = 20;
     return this._current || (this._current = {
-      dayHeightPx: 20,
-      eventHeightPx: 18,
+      dayHeightPx: 40,
+      eventHeightPx: 38,
       stepMinutes: stepMinutes,
       stepPx: stepPx,
       scheduleStartMinutes: 360,

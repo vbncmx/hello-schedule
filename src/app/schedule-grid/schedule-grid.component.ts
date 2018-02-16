@@ -20,6 +20,7 @@ export class ScheduleGridComponent implements OnInit, AfterViewInit {
   @ViewChild('dynamic', { read: ViewContainerRef }) viewContainerRef: ViewContainerRef
   factoryResolver: ComponentFactoryResolver;
   elementRef: ElementRef;
+  onSelectionEnd: (start: Date, end: Date) => void;
 
   ngOnInit() {
     this.year = 2018;
@@ -72,12 +73,37 @@ export class ScheduleGridComponent implements OnInit, AfterViewInit {
       });
 
       $(el.nativeElement).mouseup(function (e) {
+        const so = ScheduleOptions.Current();
         if ($(selector).is(":visible")) {
           $(selector).hide();
+          const day = parseInt(selector.style.top.replace('px', '')) / so.dayHeightPx + 1;
+
+          const totalMinutesStart = so.scheduleStartMinutes + so.stepMinutes * parseInt(selector.style.left.replace('px', '')) / so.stepPx;          
+          const start = that.toDate(totalMinutesStart, day);
+
+          const totalMinutesEnd = totalMinutesStart + so.stepMinutes * parseInt(selector.style.width.replace('px', '')) / so.stepPx;
+          const end = that.toDate(totalMinutesEnd, day);
+
+          if (that.onSelectionEnd !== null){
+            that.onSelectionEnd(start, end);
+          }          
         }
       });
-
     });
+  }
+
+  private toDate(totalMinutes: number, day: number): Date {
+    const date = new Date();
+
+    date.setFullYear(this.year);
+    date.setMonth(this.month);
+    date.setDate(day);
+    date.setHours(Math.floor(totalMinutes / 60));
+    date.setMinutes(totalMinutes % 60);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+
+    return date;
   }
 
   private adjustScheduleGridStyle(style) {
@@ -124,12 +150,5 @@ export class ScheduleGridComponent implements OnInit, AfterViewInit {
     const eventComponent = factory.create(this.viewContainerRef.parentInjector);
     eventComponent.instance.event = event;
     this.viewContainerRef.insert(eventComponent.hostView);
-
-    // const eventComponent = this.viewContainerRef.createComponent(factory, 0);
-    console.log(this.viewContainerRef);
-
-    // this.viewContainerRef.insert(eventComponen)
-
-
   }
 }

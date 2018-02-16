@@ -1,0 +1,27 @@
+#appModal{
+    position: relative;
+    background: #FFF;
+    padding: 10px;
+    border-radius: 10px;
+    border-top-left-radius: 0px;
+    border: 1px solid #AAA;
+}
+
+#appModalTitle{
+    font-size: 1em;
+    vertical-align: middle;
+}
+
+#appModalBody textarea{
+    width: 190px;
+    height: 100px;
+}
+
+#appModalPanel{
+    height: 20px;
+}
+
+#appModalPanel button{
+    float: right;
+    width: 100px;
+}

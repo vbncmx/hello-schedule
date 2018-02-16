@@ -1,0 +1,11 @@
+<div id="appModal">
+  <div id="appModalTitle">
+    New Appointment
+  </div>
+  <div id="appModalBody">
+    <textarea id="appDescription" [(ngModel)]="event.description" placeholder="Please provide appointment description" ></textarea>
+  </div>
+  <div id="appModalPanel">
+    <button (click)="okClick()">OK</button>
+  </div>
+</div>

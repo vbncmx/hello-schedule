@@ -4,6 +4,7 @@ import { EVENTS } from '../event-provider';
 import { EventComponent } from '../event/event.component';
 import { ScheduleOptions } from '../scheduleOptions';
 import { ScheduleGridComponent } from '../schedule-grid/schedule-grid.component'
+import { AppointmentModalComponent } from '../appointment-modal/appointment-modal.component'
 import * as $ from 'jquery';
 
 @Component({
@@ -22,6 +23,7 @@ export class ScheduleComponent implements OnInit, AfterViewInit {
   viewContainerRef: ViewContainerRef;
   factoryResolver: ComponentFactoryResolver;
   @ViewChild(ScheduleGridComponent) scheduleGrid: ScheduleGridComponent;
+  @ViewChild(AppointmentModalComponent) appointmentModal: AppointmentModalComponent;
 
   ngOnInit() {
     this.year = 2018;
@@ -47,11 +49,39 @@ export class ScheduleComponent implements OnInit, AfterViewInit {
       const dayScale = document.getElementById('dayScale');
       that.configureDayScale(dayScale);
 
-      $("#addAppointmentButton").click(function(){
+      $("#addAppointmentButton").click(function () {
         const event = { start: new Date("2018-02-01 16:00:00"), end: new Date("2018-02-01 17:30:00"), description: "HELLO", id: "e6666" };
         that.scheduleGrid.addEvent(event);
       });
+
+      that.appointmentModal.hide();
+
+      that.scheduleGrid.onSelectionEnd = (start, end) => {
+        let event = new Event();
+        event.start = start;
+        event.end = end;
+        event.description = start.toDateString();
+        event.id = that.guid();
+        that.appointmentModal.setEvent(event);
+        that.appointmentModal.show();
+      };
+      
+      that.appointmentModal.onOkClick = () => {
+        that.scheduleGrid.addEvent(that.appointmentModal.event);
+        that.appointmentModal.hide();
+      };
+
     });
+  }
+
+  private guid(): string {
+    function s4() {
+      return Math.floor((1 + Math.random()) * 0x10000)
+        .toString(16)
+        .substring(1);
+    }
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+      s4() + '-' + s4() + s4() + s4();
   }
 
   private adjustScheduleGridStyle(style) {
